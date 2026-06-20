@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tonight — plan a hangout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===================== TOKENS ===================== */
+:root{
+  --ink: #1B1B2F;
+  --ink-soft: #2D2D44;
+  --ink-softer: #3A3A56;
+  --paper: #FFF8F0;
+  --paper-dim: #EDE6D9;
+  --coral: #FF6B4A;
+  --coral-deep: #E2502F;
+  --teal: #3DD9C4;
+  --amber: #FFC857;
+  --line: rgba(255,248,240,0.14);
+  --line-strong: rgba(255,248,240,0.28);
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+
+  --radius-card: 22px;
+  --radius-sm: 10px;
+}
+
+*{ box-sizing: border-box; }
+
+html, body{
+  margin:0; padding:0;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+body{
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+button{ font-family: inherit; cursor:pointer; }
+input{ font-family: inherit; }
+
+:focus-visible{
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ===================== SCREENS ===================== */
+.screen{
+  display:none;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
+.screen.active{ display:block; }
+
+.grain{
+  position: fixed; inset:0;
+  pointer-events:none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: 0;
+}
+
+/* ===================== START SCREEN ===================== */
+.start-wrap{
+  position: relative; z-index:1;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 14vh 24px 40px;
+  text-align:center;
+}
+
+.eyebrow{
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 18px;
+}
+
+.logo{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(56px, 11vw, 96px);
+  line-height: 0.95;
+  margin: 0 0 18px;
+  letter-spacing: -0.02em;
+}
+.logo-dot{ color: var(--coral); }
+.logo--small{ font-size: 28px; margin: 0; }
+
+.tagline{
+  font-size: 18px;
+  color: var(--paper-dim);
+  max-width: 440px;
+  margin: 0 auto 56px;
+  line-height: 1.5;
+}
+
+.start-actions{
+  display:flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.btn-stub{
+  position: relative;
+  background: var(--ink-soft);
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-card);
+  padding: 22px 28px;
+  text-align:left;
+  color: var(--paper);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  overflow: hidden;
+}
+.btn-stub::after{
+  content:"";
+  position:absolute;
+  right: -30px; top: 50%;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: var(--ink);
+  transform: translateY(-50%);
+  border: 1.5px dashed var(--line-strong);
+}
+.btn-stub::before{
+  content:"";
+  position:absolute;
+  left: -30px; top: 50%;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: var(--ink);
+  transform: translateY(-50%);
+  border: 1.5px dashed var(--line-strong);
+}
+.btn-stub:hover{
+  transform: translateY(-2px);
+  border-color: var(--coral);
+}
+.btn-stub--alt:hover{ border-color: var(--teal); }
+
+.stub-label{
+  display:block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 26px;
+  margin-bottom: 4px;
+}
+.stub-sub{
+  display:block;
+  font-size: 13.5px;
+  color: var(--paper-dim);
+}
+
+/* ===================== FORM SCREENS ===================== */
+.form-wrap{
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 64px 24px 80px;
+}
+.form-wrap--narrow{ max-width: 460px; }
+
+.btn-back{
+  background:none;
+  border:none;
+  color: var(--paper-dim);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 0;
+  margin-bottom: 24px;
+  transition: color 0.15s ease;
+}
+.btn-back:hover{ color: var(--coral); }
+
+.form-title{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(32px, 6vw, 44px);
+  margin: 0 0 10px;
+}
+.form-sub{
+  color: var(--paper-dim);
+  font-size: 15.5px;
+  line-height: 1.5;
+  margin: 0 0 36px;
+}
+
+.field{ margin-bottom: 24px; }
+.field-row{ display:flex; gap: 16px; }
+.field-row .field{ flex:1; }
+.field--small{ flex: 0 0 110px !important; }
+
+.field label{
+  display:block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--amber);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.field-hint{
+  font-size: 12.5px;
+  color: var(--paper-dim);
+  margin-top: 6px;
+  opacity: 0.8;
+}
+
+.field-error{
+  font-size: 13px;
+  color: var(--coral);
+  min-height: 18px;
+  margin: -8px 0 8px;
+}
+
+input[type="text"], input[type="number"]{
+  width: 100%;
+  background: var(--ink-soft);
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  color: var(--paper);
+  font-size: 16px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+input[type="text"]:focus, input[type="number"]:focus{
+  border-color: var(--teal);
+  background: var(--ink);
+}
+input::placeholder{ color: rgba(255,248,240,0.35); }
+
+.code-input{
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 28px;
+  text-align: center;
+  padding: 18px 16px;
+}
+
+.budget-row{
+  display:flex;
+  align-items:center;
+  gap: 14px;
+  background: var(--ink-soft);
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+}
+.budget-symbol{ font-weight: 700; color: var(--amber); font-size: 18px; }
+.budget-row input[type="range"]{
+  flex:1;
+  accent-color: var(--coral);
+  height: 4px;
+}
+.budget-value{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+  min-width: 54px;
+  text-align: right;
+  color: var(--paper);
+}
+
+.vibe-grid{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+.vibe-chip{
+  background: var(--ink-soft);
+  border: 1.5px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 12px 8px;
+  color: var(--paper-dim);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align:center;
+  transition: all 0.15s ease;
+}
+.vibe-chip:hover{ border-color: var(--line-strong); transform: translateY(-1px); }
+.vibe-chip.selected{
+  background: var(--coral);
+  border-color: var(--coral);
+  color: var(--ink);
+}
+
+.btn-primary{
+  width:100%;
+  background: var(--coral);
+  color: var(--ink);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 12px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.btn-primary:hover{ background: var(--coral-deep); transform: translateY(-1px); }
+.btn-primary:active{ transform: translateY(0); }
+
+/* ===================== LOBBY HEADER ===================== */
+.lobby-header{
+  position: relative; z-index: 1;
+  display:flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 32px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.lobby-header-left{
+  display:flex;
+  align-items:center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.weather-pill{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  background: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13.5px;
+  color: var(--paper-dim);
+}
+
+.ticket-stub{
+  display:flex;
+  align-items:center;
+  gap: 14px;
+  background: var(--ink-soft);
+  border: 1.5px dashed var(--amber);
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+}
+.ticket-stub-label{
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--paper-dim);
+  font-weight: 700;
+}
+.ticket-stub-code{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.12em;
+  color: var(--amber);
+}
+.ticket-stub-copy{
+  background: var(--amber);
+  color: var(--ink);
+  border:none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: transform 0.15s ease;
+}
+.ticket-stub-copy:hover{ transform: scale(1.05); }
+
+/* ===================== LOBBY BODY ===================== */
+.lobby-body{
+  position: relative; z-index: 1;
+  display:grid;
+  grid-template-columns: 260px minmax(0,1fr) 280px;
+  gap: 28px;
+  padding: 28px 32px 60px;
+  align-items: start;
+}
+
+.panel-title{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 17px;
+  margin: 0 0 14px;
+  color: var(--paper);
+}
+.panel-title span{ color: var(--paper-dim); font-weight: 400; font-size: 14px; }
+.panel-title--spaced{ margin-top: 28px; }
+
+/* ROSTER */
+.roster-panel{ position: sticky; top: 28px; }
+.roster-list{
+  list-style:none;
+  margin:0; padding:0;
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+.roster-item{
+  background: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display:flex;
+  align-items: center;
+  gap: 10px;
+}
+.roster-avatar{
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--coral);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 14px;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink: 0;
+}
+.roster-info{ min-width:0; }
+.roster-name{
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow:hidden;
+  text-overflow: ellipsis;
+}
+.roster-meta{
+  font-size: 12px;
+  color: var(--paper-dim);
+  white-space: nowrap;
+  overflow:hidden;
+  text-overflow: ellipsis;
+}
+.roster-vibes{
+  font-size: 11px;
+  color: var(--teal);
+  margin-top: 2px;
+}
+.roster-status{
+  margin-left:auto;
+  font-size: 16px;
+  flex-shrink:0;
+}
+
+.map-box{
+  border-radius: 16px;
+  overflow:hidden;
+  border: 1px solid var(--line);
+  background: linear-gradient(135deg, #2A3A3D, #1E2A2C);
+  min-height: 180px;
+  position: relative;
+}
+.map-placeholder{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding: 24px 16px;
+  gap: 6px;
+  background-image:
+    linear-gradient(rgba(61,217,196,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(61,217,196,0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.map-pin{ font-size: 28px; margin-bottom: 4px; }
+.map-placeholder-text{
+  font-size: 12.5px;
+  color: var(--paper-dim);
+  margin-bottom: 8px;
+}
+.map-open-link{
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--teal);
+  text-decoration:none;
+  border-bottom: 1px solid var(--teal);
+  padding-bottom: 1px;
+}
+.map-open-link:hover{ opacity: 0.8; }
+
+/* DECK */
+.deck-panel{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.deck-header{ text-align:center; margin-bottom: 18px; }
+.deck-hint{
+  font-size: 12.5px;
+  color: var(--paper-dim);
+  margin: 4px 0 0;
+}
+
+.card-stage{
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  height: 460px;
+  margin-bottom: 22px;
+}
+
+.swipe-card{
+  position:absolute;
+  inset:0;
+  background: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-y;
+  transition: transform 0.35s cubic-bezier(.2,.8,.2,1), opacity 0.35s ease;
+}
+.swipe-card:active{ cursor: grabbing; }
+.swipe-card.dragging{ transition: none; }
+
+.swipe-card-img{
+  width:100%;
+  height: 260px;
+  object-fit: cover;
+  background: var(--ink);
+  display:block;
+}
+.swipe-card-body{
+  padding: 18px 20px;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+.swipe-card-category{
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 6px;
+}
+.swipe-card-title{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 21px;
+  margin: 0 0 6px;
+  line-height: 1.2;
+}
+.swipe-card-desc{
+  font-size: 13.5px;
+  color: var(--paper-dim);
+  line-height: 1.45;
+  margin: 0 0 10px;
+  flex:1;
+}
+.swipe-card-meta{
+  display:flex;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.stamp{
+  position:absolute;
+  top: 28px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 32px;
+  padding: 6px 18px;
+  border-radius: 8px;
+  border: 4px solid;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0;
+  pointer-events:none;
+  transform: rotate(-18deg);
+}
+.stamp--yes{
+  right: 22px;
+  color: var(--teal);
+  border-color: var(--teal);
+}
+.stamp--no{
+  left: 22px;
+  color: var(--coral);
+  border-color: var(--coral);
+  transform: rotate(18deg);
+}
+
+.deck-empty{
+  position:absolute; inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding: 30px;
+  background: var(--ink-soft);
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--radius-card);
+}
+.deck-empty-emoji{ font-size: 40px; margin-bottom: 10px; }
+.deck-empty-title{
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  margin: 0 0 6px;
+}
+.deck-empty-sub{
+  font-size: 13.5px;
+  color: var(--paper-dim);
+}
+
+.deck-controls{
+  display:flex;
+  align-items:center;
+  gap: 28px;
+}
+.deck-btn{
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  background: var(--ink-soft);
+  font-size: 22px;
+  color: var(--paper);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.deck-btn:hover{ transform: translateY(-2px) scale(1.05); }
+.deck-btn--no:hover{ border-color: var(--coral); color: var(--coral); }
+.deck-btn--yes:hover{ border-color: var(--teal); color: var(--teal); }
+.deck-progress{
+  font-size: 13px;
+  color: var(--paper-dim);
+  font-weight: 600;
+  min-width: 60px;
+  text-align:center;
+}
+
+/* RESULTS */
+.results-panel{ position: sticky; top: 28px; }
+.results-empty{
+  font-size: 13px;
+  color: var(--paper-dim);
+  border: 1.5px dashed var(--line-strong);
+  border-radius: 12px;
+  padding: 18px;
+  line-height: 1.5;
+}
+.results-list{
+  list-style:none;
+  margin:0; padding:0;
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+}
+.result-item{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  background: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.result-item.winner{
+  border-color: var(--amber);
+  background: linear-gradient(135deg, rgba(255,200,87,0.12), var(--ink-soft));
+}
+.result-rank{
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--paper-dim);
+  width: 22px;
+  text-align:center;
+  flex-shrink:0;
+}
+.winner .result-rank{ color: var(--amber); }
+.result-thumb{
+  width: 44px; height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink:0;
+  background: var(--ink);
+}
+.result-info{ min-width:0; flex:1; }
+.result-name{
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow:hidden;
+  text-overflow: ellipsis;
+}
+.result-votes{
+  font-size: 11.5px;
+  color: var(--teal);
+}
+
+/* ===================== TOAST ===================== */
+.toast{
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 12px 22px;
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  opacity:0;
+  pointer-events:none;
+  transition: all 0.25s ease;
+  z-index: 100;
+}
+.toast.show{
+  opacity:1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 980px){
+  .lobby-body{
+    grid-template-columns: 1fr;
+  }
+  .roster-panel, .results-panel{ position: static; }
+  .deck-panel{ order: -1; }
+}
+
+@media (max-width: 600px){
+  .start-wrap{ padding-top: 10vh; }
+  .vibe-grid{ grid-template-columns: repeat(2, 1fr); }
+  .field-row{ flex-direction: column; }
+  .field--small{ flex: 1 !important; }
+  .lobby-header{ padding: 18px 16px; }
+  .lobby-body{ padding: 20px 16px 50px; }
+  .card-stage{ height: 420px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ====================== SCREEN 1: START MENU ====================== -->
+<section id="screen-start" class="screen active">
+  <div class="grain"></div>
+  <div class="start-wrap">
+    <div class="eyebrow">no plan? no problem.</div>
+    <h1 class="logo">Tonight<span class="logo-dot">.</span></h1>
+    <p class="tagline">Pick a time, pick your people, swipe until you agree on something.</p>
+
+    <div class="start-actions">
+      <button class="btn-stub" id="btn-create-lobby">
+        <span class="stub-label">create lobby</span>
+        <span class="stub-sub">start a new plan, get a code</span>
+      </button>
+      <button class="btn-stub btn-stub--alt" id="btn-join-lobby">
+        <span class="stub-label">join lobby</span>
+        <span class="stub-sub">got a code from a friend?</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== SCREEN 2: JOIN CODE ENTRY ====================== -->
+<section id="screen-join-code" class="screen">
+  <div class="form-wrap form-wrap--narrow">
+    <button class="btn-back" data-back="screen-start">&larr; back</button>
+    <div class="eyebrow">join lobby</div>
+    <h2 class="form-title">Got the code?</h2>
+    <p class="form-sub">Ask whoever's organizing for their 5-letter lobby code.</p>
+
+    <div class="field">
+      <label for="input-join-code">Lobby code</label>
+      <input type="text" id="input-join-code" maxlength="5" placeholder="X7K2P" autocomplete="off" class="code-input">
+      <div class="field-error" id="join-code-error"></div>
+    </div>
+
+    <button class="btn-primary" id="btn-join-code-next">Continue &rarr;</button>
+  </div>
+</section>
+
+<!-- ====================== SCREEN 3: PROFILE ENTRY (shared by create + join) ====================== -->
+<section id="screen-profile" class="screen">
+  <div class="form-wrap">
+    <button class="btn-back" id="btn-profile-back">&larr; back</button>
+    <div class="eyebrow" id="profile-eyebrow">create lobby</div>
+    <h2 class="form-title">Tell us about you</h2>
+    <p class="form-sub">This helps us recommend stuff the whole group will actually like.</p>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="input-name">Your name</label>
+        <input type="text" id="input-name" placeholder="Sam" autocomplete="off">
+      </div>
+      <div class="field field--small">
+        <label for="input-age">Age</label>
+        <input type="number" id="input-age" placeholder="27" min="1" max="120">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="input-location">Your location</label>
+      <input type="text" id="input-location" placeholder="e.g. Lisbon, Príncipe Real" autocomplete="off">
+      <div class="field-hint">City or neighborhood — used to center recommendations and the map.</div>
+    </div>
+
+    <div class="field">
+      <label for="input-budget">Budget for the outing (per person)</label>
+      <div class="budget-row">
+        <span class="budget-symbol">€</span>
+        <input type="range" id="input-budget" min="0" max="150" step="5" value="30">
+        <span class="budget-value" id="budget-value">€30</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>What are you in the mood for?</label>
+      <div class="field-hint">Pick as many as you like — it shapes your recommendations.</div>
+      <div class="vibe-grid" id="vibe-grid">
+        <button type="button" class="vibe-chip" data-vibe="food">🍜 Food</button>
+        <button type="button" class="vibe-chip" data-vibe="drinks">🍸 Drinks</button>
+        <button type="button" class="vibe-chip" data-vibe="outdoors">🌳 Outdoors</button>
+        <button type="button" class="vibe-chip" data-vibe="active">🏃 Active</button>
+        <button type="button" class="vibe-chip" data-vibe="culture">🎨 Culture</button>
+        <button type="button" class="vibe-chip" data-vibe="chill">🛋️ Chill</button>
+        <button type="button" class="vibe-chip" data-vibe="games">🎮 Games</button>
+        <button type="button" class="vibe-chip" data-vibe="live">🎤 Live music</button>
+      </div>
+    </div>
+
+    <div class="field-error" id="profile-error"></div>
+    <button class="btn-primary" id="btn-profile-next">Enter lobby &rarr;</button>
+  </div>
+</section>
+
+<!-- ====================== SCREEN 4: LOBBY ====================== -->
+<section id="screen-lobby" class="screen">
+  <div class="grain"></div>
+
+  <header class="lobby-header">
+    <div class="lobby-header-left">
+      <h1 class="logo logo--small">Tonight<span class="logo-dot">.</span></h1>
+      <div class="weather-pill" id="weather-pill">
+        <span id="weather-icon">☀️</span>
+        <span id="weather-text">Loading weather…</span>
+      </div>
+    </div>
+    <div class="ticket-stub" id="lobby-code-stub">
+      <div class="ticket-stub-label">lobby code</div>
+      <div class="ticket-stub-code" id="lobby-code-display">— — — — —</div>
+      <button class="ticket-stub-copy" id="btn-copy-code" title="Copy code">copy</button>
+    </div>
+  </header>
+
+  <div class="lobby-body">
+
+    <!-- LEFT: roster -->
+    <aside class="roster-panel">
+      <h3 class="panel-title">Who's in <span id="roster-count">(1)</span></h3>
+      <ul class="roster-list" id="roster-list"></ul>
+
+      <h3 class="panel-title panel-title--spaced">Map</h3>
+      <div class="map-box" id="map-box">
+        <div class="map-placeholder">
+          <div class="map-pin">📍</div>
+          <div class="map-placeholder-text" id="map-location-text">Centered near your location</div>
+          <a href="#" target="_blank" rel="noopener" class="map-open-link" id="map-open-link">Open in Google Maps &rarr;</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER: swipe deck -->
+    <main class="deck-panel">
+      <div class="deck-header">
+        <h3 class="panel-title">Swipe to vote</h3>
+        <p class="deck-hint">Swipe right (or press →) to vote yes · swipe left (or press ←) to pass</p>
+      </div>
+
+      <div class="card-stage" id="card-stage">
+        <!-- cards injected by JS -->
+      </div>
+
+      <div class="deck-controls">
+        <button class="deck-btn deck-btn--no" id="btn-vote-no" aria-label="Pass">✕</button>
+        <div class="deck-progress" id="deck-progress">0 / 0</div>
+        <button class="deck-btn deck-btn--yes" id="btn-vote-yes" aria-label="Vote yes">♥</button>
+      </div>
+    </main>
+
+    <!-- RIGHT: results (hidden until voting complete) -->
+    <aside class="results-panel" id="results-panel">
+      <h3 class="panel-title">Results</h3>
+      <div class="results-empty" id="results-empty">
+        Results show up here once everyone's done voting.
+      </div>
+      <ol class="results-list" id="results-list"></ol>
+    </aside>
+
+  </div>
+</section>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   TONIGHT — hangout planning app
+   Notes on real integration points (currently simulated/mocked):
+   - Weather: uses Open-Meteo's free geocoding + forecast API (no key
+     needed) when the browser allows the network request. Falls back to
+     a randomized mock if the request fails (e.g. offline preview).
+   - Google Maps: the "Open in Google Maps" link uses a standard maps
+     search URL built from the entered location — no API key required
+     for this. For an embedded interactive map, swap the .map-box
+     placeholder for a Google Maps JS embed with your own API key.
+   - Multiplayer sync: lobby state currently lives in memory on this
+     device only (with localStorage so a refresh doesn't lose it).
+     To make lobbies actually shared across devices, swap the
+     LobbyStore methods for calls to your backend / websocket / 
+     Firebase / etc — the rest of the app doesn't need to change.
+   ===================================================================== */
+
+(function(){
+  "use strict";
+
+  /* ----------------------- ACTIVITY CATALOG ----------------------- */
+  // Each activity is tagged with vibes + weather suitability so the
+  // recommendation list can adapt to mood and conditions.
+  const ACTIVITY_CATALOG = [
+    {
+      id: "ramen-spot",
+      name: "Late-night ramen counter",
+      category: "Restaurant",
+      vibes: ["food", "chill"],
+      weather: ["any"],
+      estCost: 18,
+      desc: "Counter seats, steaming bowls, the kind of place you go when talking feels optional.",
+      img: "https://images.unsplash.com/photo-1623341214825-9f4f963727da?w=600&q=80&auto=format&fit=crop"
+    },
+    {
+      id: "rooftop-bar",
+      ageRange: [24,55],
+      name: "Rooftop cocktail bar",
+      category: "Drinks",
+      vibes: ["drinks", "chill"],
+      weather: ["clear", "clouds"],
+      estCost: 22,
+      desc: "City views, good playlist, the kind of round-of-drinks place that turns into three rounds.",
+      img: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=600&q=80&auto=format&fit=crop"
+    },
+    {
+      id: "park-picnic",
+      name: "Picnic at the park",
+      category: "Park",
+      vibes: ["outdoors", "chill", "food"],
+      weather: ["clear"],
+      estCost: 12,
+      desc: "Bring a blanket, split some snacks, let the afternoon do nothing in particular.",
+      img: "https://images.unsplash.com/photo-1526976668912-1a811878dd37?w=600&q=80&auto=format&fit=crop"
+    },
+    {
+      id: "bouldering-gym",
+      name: "Bouldering gym session",
+      category: "Activity",
+      vibes: ["active", "games"],
+      weather: ["any"],
+      estCost: 16,
+      desc: "Climb a few walls, fail in front of your friends, laugh about it over water.",
+      img: "https://images.unsplash.com/photo-1522163182402-834f871fd851?w=600&q=80&auto=format&fit=crop"
+    },
+    {
+      id: "art-museum",
+      ageRange: [22,70],
+      name: "Contemporary art museum",
+      category: "Culture",
+      vibes: ["culture", "chill"],
+      weather: ["rain", "any"],
+      estCost: 10,
+      desc: "Wander the galleries, pick favorites, argue gently about what counts as art.",
+      img: "https://images.unsplash.com/photo-1554907984-15263bfd63bd?w=600&q=80&auto=format&fit=crop"
+    },
+    {
+      id: "arcade-bar",
+      ageRange: [18,35],
+      name: "Retro arcade bar",
+      category: "Games",
+      vibes: ["games", "drinks", "active"],
+      weather: ["any"],
+      estCost: 20,
+      desc: "Pinball, skee-ball, a tab that somehow always lands on the loser.",
+      img: "https://images.unsplash.com/photo-1511882150382-421056c89033?w=600&q=80&auto=format&fit=crop"
+    },
+    {
+      id: "live-jazz",
+      ageRange: [25,65],
+      name: "Jazz club set",
+      category: "Live music",
+      vibes: ["live", "drinks", "chill"],
+      weather: ["any"],
+      estCost: 25,
+      desc: "Small stage, low light, a trio that actually knows what they're doing.",
+      img: "https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?w=600&q=80&auto=format&fit=crop"
+    },
+    {
+      id: "hiking-trail",
+      name: "Sunset hike",
+      category: "Outdoors",
+      vibes: ["outdoors", "active"],
+      weather: ["clear", "clouds"],
+      estCost: 0,
+      desc: "A trail, a view, and a good excuse to put your phone away for an hour.",
+      img: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=600&q=80&auto=format&fit=crop"
+    },
+    {
+      id: "tapas-crawl",
+      name: "Tapas bar crawl",
+      category: "Restaurant",
+      vibes: ["food", "drinks"],
+      weather: ["any"],
+      estCost: 28,
+      desc: "Small plates, three stops, nobody has to commit to one whole meal.",
+      img: "https://images.unsplash.com/photo-1515443961218-a51367888e4b?w=600&q=80&auto=format&fit=crop"
+    },
+    {
+      id: "board-game-cafe",
+      ageRange: [16,45],
+      name: "Board game café",
+      category: "Games",
+      vibes: ["games", "chill", "food"],
+      weather: ["rain", "any"],
+      estCost: 14,
+      desc: "A wall of games, coffee that keeps coming, zero pressure to be anywhere else.",
+      img: "https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=600&q=80&auto=format&fit=crop"
+    },
+    {
+      id: "botanical-garden",
+      ageRange: [25,75],
+      name: "Botanical garden stroll",
+      category: "Park",
+      vibes: ["outdoors", "chill", "culture"],
+      weather: ["clear", "clouds"],
+      estCost: 8,
+      desc: "Greenhouse humidity, quiet paths, the closest thing to a reset button.",
+      img: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=600&q=80&auto=format&fit=crop"
+    },
+    {
+      id: "movie-night",
+      name: "Indie cinema double feature",
+      category: "Culture",
+      vibes: ["chill", "culture"],
+      weather: ["rain"],
+      estCost: 15,
+      desc: "Big screen, small theater, the kind of place that still sells real butter popcorn.",
+      img: "https://images.unsplash.com/photo-1489599162946-c4c9eb9d2c5d?w=600&q=80&auto=format&fit=crop"
+    },
+    {
+      id: "bowling-night",
+      name: "Bowling night",
+      category: "Activity",
+      vibes: ["active", "games", "drinks"],
+      weather: ["any"],
+      estCost: 18,
+      desc: "Bad shoes, worse scores, a leaderboard nobody will remember tomorrow.",
+      img: "https://images.unsplash.com/photo-1538511188943-cd1b30aa6f87?w=600&q=80&auto=format&fit=crop"
+    },
+    {
+      id: "beach-sunset",
+      name: "Beach sunset hangout",
+      category: "Outdoors",
+      vibes: ["outdoors", "chill"],
+      weather: ["clear"],
+      estCost: 5,
+      desc: "Sand, a cooler, the sky doing something worth watching for free.",
+      img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80&auto=format&fit=crop"
+    },
+    {
+      id: "escape-room",
+      ageRange: [16,40],
+      name: "Escape room",
+      category: "Games",
+      vibes: ["games", "active"],
+      weather: ["any"],
+      estCost: 30,
+      desc: "Sixty minutes, one locked door, and a group chat dynamic you'll learn a lot from.",
+      img: "https://images.unsplash.com/photo-1572177812156-58036aae439c?w=600&q=80&auto=format&fit=crop"
+    }
+  ];
+
+  /* ----------------------- STATE ----------------------- */
+  const state = {
+    mode: null,            // "create" | "join"
+    lobbyCode: null,
+    me: null,              // { id, name, age, location, budget, vibes }
+    members: [],           // all members incl. me
+    weather: null,         // { condition, tempC, label, icon }
+    deck: [],              // activities to vote on, in order
+    deckIndex: 0,
+    votes: {},             // activityId -> count of YES votes (simulated group total)
+    myVotes: {},           // activityId -> 'yes' | 'no'
+    location: null
+  };
+
+  /* ----------------------- UTILITIES ----------------------- */
+  function $(sel){ return document.querySelector(sel); }
+  function $all(sel){ return Array.from(document.querySelectorAll(sel)); }
+
+  function showScreen(id){
+    $all(".screen").forEach(s => s.classList.remove("active"));
+    $("#" + id).classList.add("active");
+    window.scrollTo({top:0, behavior:"instant" in window ? "instant" : "auto"});
+  }
+
+  function showToast(msg){
+    const t = $("#toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(showToast._tid);
+    showToast._tid = setTimeout(()=> t.classList.remove("show"), 2200);
+  }
+
+  function generateLobbyCode(){
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no ambiguous chars
+    let code = "";
+    for(let i=0;i<5;i++) code += chars[Math.floor(Math.random()*chars.length)];
+    return code;
+  }
+
+  function initials(name){
+    return name.trim().split(/\s+/).slice(0,2).map(p=>p[0]?.toUpperCase()||"").join("") || "?";
+  }
+
+  /* ----------------------- SCREEN 1: START ----------------------- */
+  $("#btn-create-lobby").addEventListener("click", () => {
+    state.mode = "create";
+    $("#profile-eyebrow").textContent = "create lobby";
+    showScreen("screen-profile");
+  });
+
+  $("#btn-join-lobby").addEventListener("click", () => {
+    state.mode = "join";
+    showScreen("screen-join-code");
+    $("#input-join-code").value = "";
+    $("#join-code-error").textContent = "";
+    $("#input-join-code").focus();
+  });
+
+  $all("[data-back]").forEach(btn=>{
+    btn.addEventListener("click", ()=> showScreen(btn.dataset.back));
+  });
+
+  /* ----------------------- SCREEN 2: JOIN CODE ----------------------- */
+  const joinCodeInput = $("#input-join-code");
+  joinCodeInput.addEventListener("input", ()=>{
+    joinCodeInput.value = joinCodeInput.value.toUpperCase().replace(/[^A-Z0-9]/g,"");
+  });
+  joinCodeInput.addEventListener("keydown", e=>{
+    if(e.key === "Enter") $("#btn-join-code-next").click();
+  });
+
+  $("#btn-join-code-next").addEventListener("click", ()=>{
+    const code = joinCodeInput.value.trim();
+    const err = $("#join-code-error");
+    if(code.length !== 5){
+      err.textContent = "Lobby codes are exactly 5 characters.";
+      return;
+    }
+    err.textContent = "";
+    state.lobbyCode = code;
+    $("#profile-eyebrow").textContent = `joining lobby ${code}`;
+    showScreen("screen-profile");
+  });
+
+  /* ----------------------- SCREEN 3: PROFILE ----------------------- */
+  // back button routes depending on mode
+  $("#btn-profile-back").addEventListener("click", ()=>{
+    showScreen(state.mode === "join" ? "screen-join-code" : "screen-start");
+  });
+
+  // budget slider live label
+  const budgetInput = $("#input-budget");
+  const budgetValue = $("#budget-value");
+  budgetInput.addEventListener("input", ()=>{
+    budgetValue.textContent = "€" + budgetInput.value;
+  });
+
+  // vibe chip multi-select
+  const selectedVibes = new Set();
+  $all(".vibe-chip").forEach(chip=>{
+    chip.addEventListener("click", ()=>{
+      const v = chip.dataset.vibe;
+      if(selectedVibes.has(v)){
+        selectedVibes.delete(v);
+        chip.classList.remove("selected");
+      } else {
+        selectedVibes.add(v);
+        chip.classList.add("selected");
+      }
+    });
+  });
+
+  $("#btn-profile-next").addEventListener("click", async ()=>{
+    const name = $("#input-name").value.trim();
+    const age = $("#input-age").value.trim();
+    const location = $("#input-location").value.trim();
+    const budget = budgetInput.value;
+    const err = $("#profile-error");
+
+    if(!name){ err.textContent = "Please enter your name."; return; }
+    if(!age || age < 1){ err.textContent = "Please enter a valid age."; return; }
+    if(!location){ err.textContent = "Please enter your location — we use it for recommendations and the map."; return; }
+    if(selectedVibes.size === 0){ err.textContent = "Pick at least one mood so we know what to recommend."; return; }
+    err.textContent = "";
+
+    state.me = {
+      id: "me",
+      name, age: Number(age), location, budget: Number(budget),
+      vibes: Array.from(selectedVibes)
+    };
+    state.location = location;
+
+    if(state.mode === "create"){
+      state.lobbyCode = generateLobbyCode();
+      state.members = [state.me];
+    } else {
+      // joining an existing lobby — code already set in state.lobbyCode
+      state.members = [state.me];
+    }
+
+    enterLobby();
+  });
+
+  // small helper to populate the roster with a couple of plausible
+  // placeholder friends so the lobby doesn't look empty in a solo demo.
+  // In a real backend-connected build, this list comes from other
+  // people actually joining with the lobby code.
+  function mockOtherMembers(location){
+    const pool = [
+      { name: "Mia", age: 26, vibes: ["food","drinks"] },
+      { name: "Leo", age: 29, vibes: ["outdoors","active"] }
+    ];
+    return pool.map((p,i)=>({
+      id: "mock"+i,
+      name: p.name, age: p.age,
+      location, budget: 25 + i*10,
+      vibes: p.vibes
+    }));
+  }
+
+  /* ----------------------- LOBBY ENTRY ----------------------- */
+  async function enterLobby(){
+    showScreen("screen-lobby");
+    $("#lobby-code-display").textContent = state.lobbyCode.split("").join(" ");
+    renderRoster();
+    renderMap();
+    await loadWeather();
+    buildDeck();
+    renderDeck();
+  }
+
+  $("#btn-copy-code").addEventListener("click", ()=>{
+    navigator.clipboard?.writeText(state.lobbyCode).catch(()=>{});
+    showToast("Lobby code copied — share it with your friends");
+  });
+
+  function renderRoster(){
+    const list = $("#roster-list");
+    list.innerHTML = "";
+    state.members.forEach(m=>{
+      const li = document.createElement("li");
+      li.className = "roster-item";
+      li.innerHTML = `
+        <div class="roster-avatar">${initials(m.name)}</div>
+        <div class="roster-info">
+          <div class="roster-name">${escapeHtml(m.name)}${m.id==="me" ? " (you)" : ""}</div>
+          <div class="roster-meta">${m.age} · €${m.budget} budget · ${escapeHtml(m.location)}</div>
+          <div class="roster-vibes">${m.vibes.map(v=>vibeLabel(v)).join(" · ")}</div>
+        </div>
+        <div class="roster-status" title="Joined">✓</div>
+      `;
+      list.appendChild(li);
+    });
+    $("#roster-count").textContent = `(${state.members.length})`;
+  }
+
+  function vibeLabel(v){
+    const map = {food:"🍜 Food", drinks:"🍸 Drinks", outdoors:"🌳 Outdoors", active:"🏃 Active",
+      culture:"🎨 Culture", chill:"🛋️ Chill", games:"🎮 Games", live:"🎤 Live music"};
+    return map[v] || v;
+  }
+
+  function escapeHtml(s){
+    return s.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+
+  function renderMap(){
+    $("#map-location-text").textContent = `Centered near "${state.location}"`;
+    const query = encodeURIComponent(state.location);
+    $("#map-open-link").href = `https://www.google.com/maps/search/?api=1&query=${query}`;
+  }
+
+  /* ----------------------- WEATHER ----------------------- */
+  async function loadWeather(){
+    const pill = $("#weather-pill");
+    $("#weather-text").textContent = "Loading weather…";
+    try{
+      // Geocode the typed location (no API key required for Open-Meteo)
+      const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(state.location)}&count=1`);
+      const geoData = await geoRes.json();
+      if(!geoData.results || !geoData.results.length) throw new Error("no geocode match");
+      const { latitude, longitude, name } = geoData.results[0];
+
+      const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code`);
+      const wData = await wRes.json();
+      const code = wData.current.weather_code;
+      const temp = Math.round(wData.current.temperature_2m);
+      const cond = weatherCodeToCondition(code);
+
+      state.weather = { condition: cond.condition, tempC: temp, label: cond.label, icon: cond.icon, place: name };
+      $("#weather-icon").textContent = cond.icon;
+      $("#weather-text").textContent = `${cond.label}, ${temp}°C near ${name}`;
+    } catch(e){
+      // Fallback mock weather if the API call fails (e.g. no network access)
+      const mockOptions = [
+        { condition:"clear", label:"Clear skies", icon:"☀️", tempC: 21 },
+        { condition:"clouds", label:"Cloudy", icon:"⛅", tempC: 17 },
+        { condition:"rain", label:"Light rain", icon:"🌧️", tempC: 14 }
+      ];
+      const pick = mockOptions[Math.floor(Math.random()*mockOptions.length)];
+      state.weather = pick;
+      $("#weather-icon").textContent = pick.icon;
+      $("#weather-text").textContent = `${pick.label}, ${pick.tempC}°C (estimated)`;
+    }
+  }
+
+  function weatherCodeToCondition(code){
+    // WMO weather codes from Open-Meteo
+    if(code === 0) return {condition:"clear", label:"Clear skies", icon:"☀️"};
+    if([1,2,3].includes(code)) return {condition:"clouds", label:"Partly cloudy", icon:"⛅"};
+    if([45,48].includes(code)) return {condition:"clouds", label:"Foggy", icon:"🌫️"};
+    if([51,53,55,56,57,61,63,65,66,67,80,81,82].includes(code)) return {condition:"rain", label:"Rainy", icon:"🌧️"};
+    if([71,73,75,77,85,86].includes(code)) return {condition:"rain", label:"Snowy", icon:"❄️"};
+    if([95,96,99].includes(code)) return {condition:"rain", label:"Stormy", icon:"⛈️"};
+    return {condition:"any", label:"Mild", icon:"🌤️"};
+  }
+
+  /* ----------------------- DECK BUILDING (weather + vibe + budget aware) ----------------------- */
+  function buildDeck(){
+    const groupVibes = new Set();
+    let maxBudget = 0;
+    state.members.forEach(m=>{
+      m.vibes.forEach(v=>groupVibes.add(v));
+      maxBudget = Math.max(maxBudget, m.budget);
+    });
+    const weatherCond = state.weather?.condition || "any";
+    const avgAge = state.members.reduce((s,m)=>s+(Number(m.age)||0),0) / Math.max(state.members.length,1);
+
+    const scored = ACTIVITY_CATALOG.map(act=>{
+      let score = 0;
+
+      if(act.ageRange){
+        const [minAge,maxAge] = act.ageRange;
+        if(avgAge >= minAge && avgAge <= maxAge){
+          score += 3;
+        } else {
+          const distance = avgAge < minAge ? (minAge-avgAge) : (avgAge-maxAge);
+          score -= Math.min(distance/5,3);
+        }
+      }
+      // vibe match
+      act.vibes.forEach(v=>{ if(groupVibes.has(v)) score += 2; });
+      // weather match
+      if(act.weather.includes(weatherCond)) score += 3;
+      if(act.weather.includes("any")) score += 1;
+      // bad weather penalty for outdoor-only activities
+      if(weatherCond === "rain" && act.weather.includes("clear") && !act.weather.includes("any") && !act.weather.includes("rain")) score -= 4;
+      // budget fit
+      if(act.estCost <= maxBudget) score += 1;
+      else score -= 2;
+      return { ...act, _score: score };
+    });
+
+    scored.sort((a,b)=> b._score - a._score);
+    state.deck = scored.slice(0, 9); // keep the deck a manageable size
+    state.deckIndex = 0;
+    state.votes = {};
+    state.myVotes = {};
+    state.deck.forEach(a => state.votes[a.id] = 0);
+  }
+
+  /* ----------------------- SWIPE DECK RENDERING ----------------------- */
+  const stage = $("#card-stage");
+  const progressEl = $("#deck-progress");
+
+  function renderDeck(){
+    stage.innerHTML = "";
+    const remaining = state.deck.slice(state.deckIndex, state.deckIndex + 3).reverse();
+
+    if(state.deckIndex >= state.deck.length){
+      showResults();
+      stage.innerHTML = `
+        <div class="deck-empty">
+          <div class="deck-empty-emoji">🎉</div>
+          <div class="deck-empty-title">All votes are in</div>
+          <div class="deck-empty-sub">Check the results panel to see what won.</div>
+        </div>`;
+      progressEl.textContent = `${state.deck.length} / ${state.deck.length}`;
+      return;
+    }
+
+    progressEl.textContent = `${state.deckIndex} / ${state.deck.length}`;
+
+    remaining.forEach((act, i)=>{
+      const isTop = (i === remaining.length - 1);
+      const card = document.createElement("div");
+      card.className = "swipe-card";
+      card.style.zIndex = i;
+      card.style.transform = `translateY(${(remaining.length-1-i)*8}px) scale(${1 - (remaining.length-1-i)*0.04})`;
+      card.dataset.id = act.id;
+      card.innerHTML = `
+        <img class="swipe-card-img" src="${act.img}" alt="${escapeHtml(act.name)}" draggable="false">
+        <div class="swipe-card-body">
+          <div class="swipe-card-category">${escapeHtml(act.category)}</div>
+          <h4 class="swipe-card-title">${escapeHtml(act.name)}</h4>
+          <p class="swipe-card-desc">${escapeHtml(act.desc)}</p>
+          <div class="swipe-card-meta">
+            <span>~€${act.estCost === 0 ? "free" : act.estCost}/person</span>
+          </div>
+        </div>
+        <div class="stamp stamp--yes">yes</div>
+        <div class="stamp stamp--no">pass</div>
+      `;
+      stage.appendChild(card);
+      if(isTop) attachSwipe(card, act);
+    });
+  }
+
+  function attachSwipe(card, activity){
+    let startX = 0, startY = 0, dx = 0, dy = 0, dragging = false;
+
+    function onDown(x, y){
+      dragging = true;
+      startX = x; startY = y;
+      card.classList.add("dragging");
+    }
+    function onMove(x, y){
+      if(!dragging) return;
+      dx = x - startX; dy = y - startY;
+      const rot = dx / 18;
+      card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+      const yesStamp = card.querySelector(".stamp--yes");
+      const noStamp = card.querySelector(".stamp--no");
+      const intensity = Math.min(Math.abs(dx)/100, 1);
+      if(dx > 0){ yesStamp.style.opacity = intensity; noStamp.style.opacity = 0; }
+      else { noStamp.style.opacity = intensity; yesStamp.style.opacity = 0; }
+    }
+    function onUp(){
+      if(!dragging) return;
+      dragging = false;
+      card.classList.remove("dragging");
+      const threshold = 90;
+      if(dx > threshold) resolveSwipe("yes");
+      else if(dx < -threshold) resolveSwipe("no");
+      else {
+        card.style.transform = "";
+        card.querySelector(".stamp--yes").style.opacity = 0;
+        card.querySelector(".stamp--no").style.opacity = 0;
+      }
+      dx = 0; dy = 0;
+    }
+
+    function resolveSwipe(vote){
+      const flyX = vote === "yes" ? 600 : -600;
+      card.style.transform = `translate(${flyX}px, ${dy}px) rotate(${flyX/14}deg)`;
+      card.style.opacity = "0";
+      castVote(activity, vote);
+      setTimeout(()=>{
+        state.deckIndex++;
+        renderDeck();
+      }, 260);
+    }
+
+    // mouse
+    card.addEventListener("mousedown", e=>{ onDown(e.clientX, e.clientY); });
+    window.addEventListener("mousemove", e=>{ if(dragging) onMove(e.clientX, e.clientY); });
+    window.addEventListener("mouseup", ()=>{ if(dragging) onUp(); });
+
+    // touch
+    card.addEventListener("touchstart", e=>{
+      const t = e.touches[0];
+      onDown(t.clientX, t.clientY);
+    }, {passive:true});
+    card.addEventListener("touchmove", e=>{
+      const t = e.touches[0];
+      onMove(t.clientX, t.clientY);
+    }, {passive:true});
+    card.addEventListener("touchend", ()=> onUp());
+
+    // expose for button/keyboard control
+    card._forceSwipe = resolveSwipe;
+  }
+
+  function castVote(activity, vote){
+    state.myVotes[activity.id] = vote;
+    if(vote === "yes"){
+      state.votes[activity.id] = (state.votes[activity.id]||0) + 1;
+      // simulate the rest of the group's votes landing too, weighted
+      // by how good a fit the card already was (its _score)
+      const extraVotes = simulateGroupVotes(activity);
+      state.votes[activity.id] += extraVotes;
+    }
+  }
+
+  // Since this demo runs on a single device, we simulate the other
+  // roster members' votes so the "most votes wins" result is meaningful.
+  // Swap this out for real incoming votes once lobbies are network-synced.
+  function simulateGroupVotes(activity){
+    const others = state.members.length - 1;
+    if(others <= 0) return 0;
+    let count = 0;
+    for(let i=0;i<others;i++){
+      const matchesVibe = activity.vibes.some(v => state.members[i+1]?.vibes.includes(v));
+      const chance = matchesVibe ? 0.75 : 0.4;
+      if(Math.random() < chance) count++;
+    }
+    return count;
+  }
+
+  // keyboard control: left/right arrows
+  document.addEventListener("keydown", e=>{
+    if(!$("#screen-lobby").classList.contains("active")) return;
+    if(state.deckIndex >= state.deck.length) return;
+    const topCard = stage.querySelector(".swipe-card:last-child");
+    if(!topCard || !topCard._forceSwipe) return;
+    if(e.key === "ArrowRight"){ topCard._forceSwipe("yes"); }
+    else if(e.key === "ArrowLeft"){ topCard._forceSwipe("no"); }
+  });
+
+  // on-screen vote buttons
+  $("#btn-vote-yes").addEventListener("click", ()=>{
+    const topCard = stage.querySelector(".swipe-card:last-child");
+    if(topCard && topCard._forceSwipe) topCard._forceSwipe("yes");
+  });
+  $("#btn-vote-no").addEventListener("click", ()=>{
+    const topCard = stage.querySelector(".swipe-card:last-child");
+    if(topCard && topCard._forceSwipe) topCard._forceSwipe("no");
+  });
+
+  /* ----------------------- RESULTS ----------------------- */
+  function showResults(){
+    const list = $("#results-list");
+    const empty = $("#results-empty");
+    const ranked = state.deck
+      .map(a => ({ ...a, votes: state.votes[a.id] || 0 }))
+      .sort((a,b) => b.votes - a.votes);
+
+    if(ranked.every(a => a.votes === 0)){
+      empty.style.display = "block";
+      list.innerHTML = "";
+      return;
+    }
+    empty.style.display = "none";
+    list.innerHTML = "";
+    ranked.forEach((a, i)=>{
+      const li = document.createElement("li");
+      li.className = "result-item" + (i===0 ? " winner" : "");
+      li.innerHTML = `
+        <div class="result-rank">${i+1}</div>
+        <img class="result-thumb" src="${a.img}" alt="">
+        <div class="result-info">
+          <div class="result-name">${i===0?"🏆 ":""}${escapeHtml(a.name)}</div>
+          <div class="result-votes">${a.votes} vote${a.votes===1?"":"s"}</div>
+        </div>
+      `;
+      list.appendChild(li);
+    });
+  }
+
+})();
+
+</script>
+</body>
+</html>
